@@ -1,0 +1,41 @@
+{
+ "class_position": 14, 
+ "location": [
+  "data/Adult/adult.data", 
+  "data/Adult/adult.test"
+ ], 
+ "attr_names": [
+  "age", 
+  "workclass", 
+  "fnlwgt", 
+  "education", 
+  "education-num", 
+  "marital-status", 
+  "occupation", 
+  "relationship", 
+  "race", 
+  "sex", 
+  "capital-gain", 
+  "capital-loss", 
+  "hours-per-week", 
+  "native-country", 
+  "Salary"
+ ], 
+ "attr_types": [
+  "c", 
+  "d", 
+  "c", 
+  "d", 
+  "c", 
+  "d", 
+  "d", 
+  "d", 
+  "d", 
+  "d", 
+  "c", 
+  "c", 
+  "c", 
+  "d", 
+  "class"
+ ]
+}

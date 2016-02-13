@@ -1,0 +1,24 @@
+{
+ "class_position": 6, 
+ "location": [
+  "data/Chess/krkopt.data"
+ ], 
+ "attr_names": [
+  "White King File", 
+  "White King Rank", 
+  "White Rook File", 
+  "White Rook Rank", 
+  "Black King File", 
+  "Black King Rank", 
+  "Optimal Depth"
+ ], 
+ "attr_types": [
+  "d", 
+  "d", 
+  "d", 
+  "d", 
+  "d", 
+  "d", 
+  "class"
+ ]
+}
