@@ -4,7 +4,7 @@ import sys
 from copy import deepcopy
 import math
 import json
-
+import preprocesss
 
 
 global metadata
@@ -159,3 +159,12 @@ def prune_tree:
 
 
 def classify(root, tuple):
+
+
+def main():
+	ctrl_file = sys.argv[1]
+	
+
+
+if __name__ == "__main__":
+	main()

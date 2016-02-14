@@ -1,10 +1,10 @@
 {
+ "class_name": "Poisonous/Edible", 
  "class_position": 0, 
  "location": [
   "data/Mushroom/agaricus-lepiota.data"
  ], 
  "attr_names": [
-  "Poisonous/Edible", 
   "cap-shape", 
   "cap-surface", 
   "cap-color", 
@@ -29,7 +29,6 @@
   "habitat"
  ], 
  "attr_types": [
-  "class", 
   "d", 
   "d", 
   "d", 

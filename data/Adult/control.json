@@ -1,5 +1,6 @@
 {
  "class_position": 14, 
+ "class_name": "Salary", 
  "location": [
   "data/Adult/adult.data", 
   "data/Adult/adult.test"
@@ -18,8 +19,7 @@
   "capital-gain", 
   "capital-loss", 
   "hours-per-week", 
-  "native-country", 
-  "Salary"
+  "native-country"
  ], 
  "attr_types": [
   "c", 
@@ -35,7 +35,6 @@
   "c", 
   "c", 
   "c", 
-  "d", 
-  "class"
+  "d"
  ]
 }
