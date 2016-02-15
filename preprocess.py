@@ -32,11 +32,13 @@ def pre_process(control_file):
 	sep = metadata['sep'] if 'sep' in metadata.keys() else ','
 	for f in  metadata['location']:
 		with open(f, 'r') as ifile:
-			for line in ifile:	
+			for line in ifile:
+				#print(line)	
 				attrs = line.strip().split(sep)
 				dataset.append([attr for i, attr in enumerate(attrs) if i!=metadata['class_position']])
 				labels.append(attrs[metadata['class_position']])	
-				
+		
+	#To compute means, and replace missing data with thse values		
 	metadata['attr_mean'] = []
 	for i, atype in enumerate(metadata['attr_types']):
 	#	print(i, atype)
@@ -51,8 +53,6 @@ def pre_process(control_file):
 		 	if example[attr] == '?':
 				example[attr] = metadata['attr_mean'][attr]	
 
-	print(len(dataset), len(labels))
-	print(labels[1:20])
 	return (dataset, labels, metadata)
 	
 
@@ -70,7 +70,7 @@ def make_control_file_HAPT():
 	metadata['class_name'] = "Action/Movement Made" 
 	metadata['sep'] = ' '
 	cf.write(json.dumps(metadata, indent=1))
-	
+	metadata['c_split_limit'] = 5
 	
 
 def make_control_file_Mushroom():
@@ -100,6 +100,17 @@ def make_control_file_Chess():
 	cf.write(json.dumps(metadata, indent=1))
 
 
+def make_control_file_Iris():
+	cf = open('data/Iris/control.json' , 'w')	
+	metadata = {}
+	metadata['location'] = ['data/Iris/iris.data']
+	metadata['class_name'] = 'Class'
+	metadata['attr_names'] = ['Sepal Length', 'Sepal Width', 'Petal Length', 'Petal Width']
+	metadata['attr_types'] = ['c'] * 4 
+	metadata['class_position'] = 4
+	metadata['c_split_limit'] = 2
+	cf.write(json.dumps(metadata, indent=1))
+
 
 def make_control_file_Adult():
 	cf = open('data/Adult/control.json' , 'w')	
@@ -117,8 +128,8 @@ def make_control_file_Adult():
 	
 	metadata['class_position'] = len(metadata['attr_names'])
 	metadata['class_name'] = "Salary"
-
-
+	metadata['c_split_limit'] = 3
+	
 
 	cf.write(json.dumps(metadata, indent=1))
 
@@ -138,7 +149,7 @@ def make_control_file_Phising():
 	
 	metadata['class_position'] = len(metadata['attr_names'])
 	metadata['class_name'] = 'Result'
-
+	metadata['c_split_limit'] = 0
 
 	cf.write(json.dumps(metadata, indent=1))
 
@@ -151,11 +162,11 @@ def make_control_files():
 	make_control_file_Mushroom()
 	make_control_file_HAPT()
 	make_control_file_Chess()
+	make_control_file_Iris()
 
 
-
-make_control_files()
-pre_process('data/HAPT/control.json')
+#make_control_files()
+#pre_process('data/Iris/control.json')
 
 
 

@@ -1,6 +1,22 @@
 {
- "class_position": 14, 
+ "attr_types": [
+  "c", 
+  "d", 
+  "c", 
+  "d", 
+  "c", 
+  "d", 
+  "d", 
+  "d", 
+  "d", 
+  "d", 
+  "c", 
+  "c", 
+  "c", 
+  "d"
+ ], 
  "class_name": "Salary", 
+ "class_position": 14, 
  "location": [
   "data/Adult/adult.data", 
   "data/Adult/adult.test"
@@ -21,20 +37,5 @@
   "hours-per-week", 
   "native-country"
  ], 
- "attr_types": [
-  "c", 
-  "d", 
-  "c", 
-  "d", 
-  "c", 
-  "d", 
-  "d", 
-  "d", 
-  "d", 
-  "d", 
-  "c", 
-  "c", 
-  "c", 
-  "d"
- ]
+ "c_split_limit": 3
 }

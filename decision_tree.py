@@ -4,7 +4,8 @@ import sys
 from copy import deepcopy
 import math
 import json
-import preprocesss
+import random
+import preprocess
 
 
 global metadata
@@ -29,12 +30,11 @@ class node:
         self.class_label = l
 
 
-def load_metadata(filename):
+def load_metadata(meta):
     global metadata
-    metadata = json.loads(filename)
 
 
-
+'''
 def create_decision_tree(dataset, labels):
      #Root Node has no split point or attribute
     attr_count = metadata['attr_count']
@@ -160,11 +160,22 @@ def prune_tree:
 
 def classify(root, tuple):
 
+'''
+def shuffle_order(a, b):	
+	c = list(zip(a, b))
+	random.shuffle(c)
+	a, b = zip(*c)
+	return a,b
+
 
 def main():
-	ctrl_file = sys.argv[1]
-	
+	preprocess.make_control_files();
+	ctrl_file = sys.argv[1] 
+	dataset, labels, meta = preprocess.pre_process(ctrl_file);
+	load_metadata(meta)  #Sets the global metadata information
+	dataset, labels = shuffle_order(dataset, labels)
 
+	
 
 if __name__ == "__main__":
 	main()
