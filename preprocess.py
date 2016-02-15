@@ -33,11 +33,10 @@ def pre_process(control_file):
 	for f in  metadata['location']:
 		with open(f, 'r') as ifile:
 			for line in ifile:
-				#print(line)	
 				attrs = line.strip().split(sep)
 				dataset.append([attr for i, attr in enumerate(attrs) if i!=metadata['class_position']])
 				labels.append(attrs[metadata['class_position']])	
-		
+					
 	#To compute means, and replace missing data with thse values		
 	metadata['attr_mean'] = []
 	for i, atype in enumerate(metadata['attr_types']):
@@ -52,9 +51,13 @@ def pre_process(control_file):
 		for attr in range(0, len(metadata['attr_types'])):
 		 	if example[attr] == '?':
 				example[attr] = metadata['attr_mean'][attr]	
-
+				
+			if metadata['attr_types'][attr] == 'c':
+				example[attr] = float(example[attr])
 	return (dataset, labels, metadata)
 	
+		
+
 
 def make_control_file_HAPT():
 	cf = open('data/HAPT/control.json' , 'w')	
