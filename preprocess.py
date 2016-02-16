@@ -46,10 +46,10 @@ def pre_process(control_file):
   
 		else:
 			metadata['attr_mean'].append(most_common([instance[i] for instance in dataset]))
-
+	print(metadata['attr_mean'])
 	for example in dataset:
 		for attr in range(0, len(metadata['attr_types'])):
-		 	if example[attr] == '?':
+		 	if example[attr].strip() == '?':
 				example[attr] = metadata['attr_mean'][attr]	
 				
 			if metadata['attr_types'][attr] == 'c':
@@ -169,7 +169,7 @@ def make_control_files():
 
 
 #make_control_files()
-#pre_process('data/Iris/control.json')
+#pre_process('data/Adult/control.json')
 
 
 
