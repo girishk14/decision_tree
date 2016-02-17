@@ -15,8 +15,10 @@ Format Description:
 '''
 def mean(lst):
 	sum = 0
+#        print(lst)
 	for val in lst:
-		if val!='?':
+		#print(val)
+		if val.strip()!='?':
 			sum = sum + float(val)
 	return (sum/float(len(lst)))	
 
@@ -40,7 +42,7 @@ def pre_process(control_file):
 	#To compute means, and replace missing data with thse values		
 	metadata['attr_mean'] = []
 	for i, atype in enumerate(metadata['attr_types']):
-	#	print(i, atype)
+		print(i, atype)
 		if atype=='c':
 			metadata['attr_mean'].append(mean([instance[i] for instance in dataset]))
   
@@ -114,6 +116,40 @@ def make_control_file_Iris():
 	metadata['c_split_limit'] = 2
 	cf.write(json.dumps(metadata, indent=1))
 
+def make_control_file_BreastCancer():
+	cf = open('data/BreastCancer/control.json' , 'w')	
+	metadata = {}
+	metadata['location'] = ['data/BreastCancer/breast_cancer.data']
+	metadata['class_name'] = 'Tumor'
+	metadata['attr_names'] = ['Clump Thickness', 'Uniformity of Cell Shape', 'Uniformity of Cell Size', 'Marginal Adhesion', 'Single Epithelial Cell Size', 'Bare Nuclei', 'Bland Chromatin', 'Normal Nucleoli', 'Mitoses'] 
+	metadata['attr_types'] = ['c'] * 9
+	metadata['class_position'] = 9
+	metadata['c_split_limit'] = 2
+	cf.write(json.dumps(metadata, indent=1))
+
+def make_control_file_ILPD():
+	cf = open('data/IndianLiver/control.json' , 'w')	
+	metadata = {}
+	metadata['location'] = ['data/IndianLiver/ILDP.data']
+	metadata['class_name'] = 'Selector'
+	metadata['attr_names'] = ['Age', 'Gender',  'TB Total Bilirubin', 'DB Direct Bilirubin','Alkphos Alkaline Phosphotase','Sgpt Alamine Aminotransferase','Sgot Aspartate Aminotransferase','TP Total Protiens','ALB Albumin','A/G Ratio Albumin and Globulin Ratio']
+
+        metadata['attr_types'] = ['c', 'd', 'c', 'c', 'c', 'c', 'c', 'c', 'c', 'c']
+	metadata['class_position'] = 10
+	metadata['c_split_limit'] = 2
+	cf.write(json.dumps(metadata, indent=1))
+
+
+def make_control_file_Pima():
+	cf = open('data/Pima/control.json' , 'w')	
+	metadata = {}
+	metadata['location'] = ['data/Pima/diabetes.data']
+	metadata['class_name'] = 'Class'	
+        metadata['attr_types'] = ['c', 'c', 'c', 'c', 'c', 'c', 'c', 'c']
+	metadata['class_position'] = 8
+	metadata['c_split_limit'] = 2
+	metadata['attr_names'] = ['Number of times pregnant','Plasma glucose concentration a 2 hours in an oral glucose tolerance test','Diastolic blood pressure (mm Hg)','Triceps skin fold thickness (mm)','2-Hour serum insulin (mu U/ml)','Body mass index (weight in kg/(height in m)^2)','Diabetes pedigree function','Age (years) ']
+	cf.write(json.dumps(metadata, indent=1))
 
 def make_control_file_Adult():
 	cf = open('data/Adult/control.json' , 'w')	
@@ -161,9 +197,9 @@ def make_control_file_Phising():
 
 def make_control_files():
 	make_control_file_Phising()
-	make_control_file_Adult()
+	make_control_file_Pima()
 	make_control_file_Mushroom()
-	make_control_file_HAPT()
+	make_control_file_BreastCancer()
 	make_control_file_Chess()
 	make_control_file_Iris()
 
