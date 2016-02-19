@@ -1,4 +1,3 @@
-
 from __future__ import print_function
 import os
 import sys
@@ -8,25 +7,15 @@ import json
 import random
 import preprocess
 
-
 global metadata
-'''
-Design of MetaData File:
-
-1. Whether each attribute is discrete or continuous (to decide branching)
-2. Statistic of each attribute domain (if required)
-
-
-'''
 
 class node:
     def __init__(self, attr, split_point, partition):
         self.children = []
-        self.criteria = {"attr": attr, "split_point":split_point}
+        self.criteria = {"next_split_attr": attr, "parent_split_point":split_point}
         self.partition = partition
         self.class_distr = None
         self.class_label = None
-
 
     def set_class_label(self,l):
         self.class_label = l
@@ -49,19 +38,14 @@ def create_decision_tree(dataset, labels):
     attr_count = len(metadata['attr_types'])
     attr_list = set(range(0, attr_count))
     return generate_subtree(dataset, labels, range(0, len(dataset)),  attr_list )
-    
 	
 def prune_attributes(dataset, labels, partition, attr_list):
- 
     pruned_attr_list = []
     for attr in attr_list:
        attr_domain = set([dataset[instance][attr] for instance in partition])
        if len(attr_domain)>1:
            pruned_attr_list.append(attr)
- 
-
-    
-    print(attr_list, " pruned to ", pruned_attr_list)
+    #print(attr_list, " pruned to ", pruned_attr_list)
     return pruned_attr_list
 		
 
@@ -71,32 +55,37 @@ def generate_subtree(dataset, labels, partition, attr_list, parent_split_pt=None
         root =  node(None, parent_split_pt, partition)
         root.set_class_label(labels[partition[0]])
         print("\nOnly one class left at ", depth, parent_split_pt, root.class_label)
+        return root
 
-    elif len(attr_list)==0:
-        maj_label = get_class_majority(dataset, labels, partition)
+    elif len(attr_list)==0: #There are no attributes left
         root = node(None, parent_split_pt, partition)
+        maj_label = get_class_majority(dataset, labels, partition)
         root.set_class_label(maj_label)
-	print("No attributes left ", depth, parent_split_pt, root.class_label)
+        print("No attributes left ", depth, parent_split_pt, root.class_label)
+        return root
  
     else: 
-        pruned_attr_list = prune_attributes(dataset, labels, partition, attr_list)
-        attr_list = pruned_attr_list
-        best_attr, split_pt = get_splitting_criteria(dataset,  labels, partition, attr_list)
-	if best_attr== -1:
-	    maj_label = get_class_majority(dataset, labels, partition)
+        pruned_attr_list = prune_attributes(dataset, labels, partition, attr_list) #Prune away attributes that have only a single value left in their domain
+        if len(pruned_attr_list) == 0:
             root = node(None, parent_split_pt, partition)
-	    root.set_class_label(maj_label)
+            maj_label = get_class_majority(dataset, labels, partition)
+            root.set_class_label(maj_label)  
             return root
+
+        attr_list = pruned_attr_list
+        best_attr, cont_split_pt = get_splitting_criteria(dataset,  labels, partition, attr_list)
 	
         #Here we distinguish between discrete and continuous
-	print("Splitting on ", metadata['attr_names'][best_attr], split_pt, "at depth  : ", depth)
+	print("Splitting on ", metadata['attr_names'][best_attr], cont_split_pt, "at depth  : ", depth)
         print("Attr List at this time : ", attr_list)
 	print("Length of this parititon", len(partition))
+	print("Elements in this partition", partition)
         print("Previous split attr", parent_split_pt)
+        
         root = node(best_attr, parent_split_pt, partition)
-        if(split_pt==None): #A discrete attribute has been chosen to split!
-            
-            attr_domain = set([dataset[instance][best_attr] for instance in partition])	    
+        if(cont_split_pt==None): #A discrete attribute has been chosen to split!
+            attr_domain = set([dataset[instance][best_attr] for instance in partition])	
+            print("Removing ", best_attr, "from " , attr_list)    
  	    attr_list.remove(best_attr)		
     	  
             for x in attr_domain: #Create the new children by partitioning this attribute
@@ -107,13 +96,9 @@ def generate_subtree(dataset, labels, partition, attr_list, parent_split_pt=None
             l,r = [], []
             attr_list.remove(best_attr);
             for instance in partition:
-                l.append(instance) if dataset[instance][best_attr]<split_pt else r.append(instance)
-
-            root.children.append(generate_subtree(dataset, labels, l,deepcopy(attr_list), split_pt,depth+1))
-            root.children.append(generate_subtree(dataset, labels, r,deepcopy(attr_list), split_pt, depth+1))
-
-   
-  
+                l.append(instance) if dataset[instance][best_attr]<cont_split_pt else r.append(instance)
+            root.children.append(generate_subtree(dataset, labels, l,deepcopy(attr_list), cont_split_pt,depth+1))
+            root.children.append(generate_subtree(dataset, labels, r,deepcopy(attr_list), cont_split_pt, depth+1))
     return root
 
 
@@ -129,39 +114,30 @@ def get_splitting_criteria(dataset, labels, partition, attr_list):
     best_attr = -1
     best_gain = -sys.maxint
     best_split_pt = None
-    all_list = deepcopy(attr_list)
-    for attribute in all_list:
+    for attribute in attr_list:
         split_pt = None
 
         if metadata['attr_types'][attribute] == 'd':
-            info, split_pt = find_entropy_discrete(dataset, labels, partition, attribute)
-
+            S_A, split_pt = find_entropy_discrete(dataset, labels, partition, attribute)
         else:
-            info, split_pt = find_entropy_continuous(dataset, labels, partition, attribute)
-            #Basically, in this case, there is only one attribute in the domain, and hence we don't find a split point......So what happens now? 
-            #if split_pt==None:
- 		#print("Weesa cant split on ", metadata['attr_names'][attribute])
-		#attr_list.remove(attribute)
-		
-	print(metadata['attr_names'][attribute],S - info, metadata['attr_types'][attribute])
-        if (S - info) > best_gain:
+            S_A, split_pt = find_entropy_continuous(dataset, labels, partition, attribute)
+
+	print(metadata['attr_names'][attribute],S - S_A, metadata['attr_types'][attribute])
+        if (S - S_A) > best_gain:
             best_attr = attribute
-            best_gain = (S - info)
+            best_gain = (S - S_A)
             best_split_pt = split_pt
 	
     return best_attr, best_split_pt
 
 def find_entropy_continuous(dataset, labels, partition, attribute):
-    #print("Find entropy")
     E = 0
     attr_domain =  set([dataset[instance][attribute] for instance in partition])
     split_pt = None
     min_E =  sys.maxint
     sorted_domain =  sorted(attr_domain)
-    #print(sorted_domain)
-    print(len(sorted_domain), end = " " )
     for x in range(0, len(sorted_domain)-1):
-        mid = (sorted_domain[x] + sorted_domain[x+1])/2
+        mid = (sorted_domain[x] + sorted_domain[x+1])/2.0
         l,r = [], []
         for instance in partition:
             l.append(instance) if dataset[instance][attribute]<mid else r.append(instance)
@@ -186,7 +162,6 @@ def find_entropy_discrete(dataset, labels, partition, attribute):
         subpart = [instance for instance in partition if dataset[instance][attribute]==x]
         print(len(subpart), end = " ")
         #Add the weighted entropy of every subpartiton
-        #print(instance, partition)
         E  = E +  (len(subpart)/float(len(partition))) * compute_entropy(dataset, labels, subpart)
 
     return E, None
@@ -195,7 +170,6 @@ def find_entropy_discrete(dataset, labels, partition, attribute):
 def compute_entropy(dataset, labels, subpart):
     count = {}
          
-  
     for i in subpart:
         if labels[i] not in count.keys():
             count[labels[i]] = 1
@@ -222,9 +196,9 @@ def classify_tuple(dataset, labels, root , test_tuple): #Given the root of a dec
     #print(root)
     trav = root
     while(len(trav.children)>0):
-		curr_attr = trav.criteria['attr'] 
+		curr_attr = trav.criteria['next_split_attr'] 
                 if metadata['attr_types'][curr_attr] == 'c':
-		    if test_tuple[curr_attr] < trav.children[0].criteria['split_point']:
+		    if test_tuple[curr_attr] < trav.children[0].criteria['parent_split_point']:
 			trav = trav.children[0]
 		    else:
 		        trav = trav.children[1]
@@ -233,21 +207,14 @@ def classify_tuple(dataset, labels, root , test_tuple): #Given the root of a dec
 		else:
  		    flag = 0
 		    for child in trav.children:
-			if child.criteria['split_point'] == test_tuple[curr_attr]:
+			if child.criteria['parent_split_point'] == test_tuple[curr_attr]:
 			    trav = child
                             flag = 1
 
-                    if flag==0:
+                    if flag==0: #If there is no way to classify this tuple in the tree;wq
 			print("No confidence to classify this")
 	                guess =  get_class_majority(dataset, labels, trav.partition)
-                        print("I guess ", guess)
 			return guess
-			#return "Unknown Class"
-			
-			
-
-		     
-
     return trav.class_label
 
 
@@ -263,15 +230,12 @@ def classic_holdout(dataset, labels):
     no_train = int(0.70* len(dataset))
     training_X =  dataset[0:no_train]
     training_Y = labels[0:no_train]
- #   print(training_X, training_Y)	
     test_X = dataset[no_train:]
     test_Y = labels[no_train:]
      
     print(len(training_X), len(test_X))
-    #sys.exit()
     d_tree  = create_decision_tree(training_X, training_Y)
     print("Tree generated")
-    #sys.exit()
     count = 0
     labelled = 0
     for i in range(0, len(test_X)):
@@ -296,7 +260,6 @@ def ten_fold_cross_validation(dataset, labels):
     fold = 1
     accuracies = []
     for X_train, Y_train, X_valid, Y_valid in k_fold_generator(dataset, labels, 10):
-	#print(len(X_train), len(X_valid))	
 	d_tree = create_decision_tree(X_train, Y_train)
         print("Tree generated")
         count = 0
@@ -320,7 +283,6 @@ def main():
     print("Preproc Complete")
     load_metadata(meta)  #Sets the global metadata information
     dataset, labels = shuffle_order(dataset, labels)
-    #print(dataset, labels)
     classic_holdout(dataset, labels)
     #ten_fold_cross_validation(dataset, labels)
    
