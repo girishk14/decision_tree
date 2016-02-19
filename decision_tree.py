@@ -5,11 +5,14 @@ from copy import deepcopy
 import math
 import json
 import random
-import preprocess
-import pruning
-import classification
 
 global metadata
+def set_metadata(md):
+	global metadata
+	metadata   = md
+	print(metadata)
+
+
 
 class node:
     def __init__(self, attr, split_point, partition):
@@ -23,12 +26,14 @@ class node:
         self.class_label = l
 	self.isLeaf = True
 
-    def leafify(self):
-	pass#Makes itself a leaf based on majority class
-
-
+    def leafify(self, dataset, labels):
+	l =  get_class_majority(dataset , labels, self.partition)
+	self.set_class_label(l)
+	
     def unleafify(self):
-	pass
+	self.isLeaf = False
+	self.class_label = None
+
 
 
     def print_node(self):
@@ -36,16 +41,13 @@ class node:
         print(self.children)
         print(self.partition)
         print(self.class_label)
+	print(self.isLeaf)
 	print("\n")
-def load_metadata(meta):
-    global metadata
-    metadata = meta
-
 
 
 def create_decision_tree(dataset, labels):
      #Root Node has no split point or attribute
-    global metadata 
+    print(metadata)
     attr_count = len(metadata['attr_types'])
     attr_list = set(range(0, attr_count))
     return generate_subtree(dataset, labels, range(0, len(dataset)),  attr_list )
@@ -199,81 +201,7 @@ def compute_entropy(dataset, labels, subpart):
 
 
 
-def shuffle_order(a, b):	
-	c = list(zip(a, b))
-	random.shuffle(c)
-	a, b = zip(*c)
-	return a,b
+
+   # pruned_tree = prune(d_tree, X_model_train, Y_model_train, X_valid, Y_valid)
 
 
-
-def classic_holdout(dataset, labels):
-    no_train = int(0.70* len(dataset))
-    training_X =  dataset[0:no_train]
-    training_Y = labels[0:no_train]
-    test_X = dataset[no_train:]
-    test_Y = labels[no_train:]
-     
-    print(len(training_X), len(test_X))
-    d_tree  = create_decision_tree(training_X, training_Y)
-    print("Tree generated")
-    count = 0
-    labelled = 0
-    for i in range(0, len(test_X)):
-        pred = classify_tuple(training_X, training_Y, d_tree, test_X[i])
-	if pred == test_Y[i]: #or pred=="Unknown Class":
-		count+=1
-	labelled+=1
-    
-    print("Accuracy  on test set = ",  count/float(labelled))
-
-def k_fold_generator(X, y, k_fold):
-    subset_size = len(X) / k_fold  # Cast to int if using Python 3
-    for k in range(k_fold):
-        X_train = X[:k * subset_size] + X[(k + 1) * subset_size:]
-        X_valid = X[k * subset_size:][:subset_size]
-        y_train = y[:k * subset_size] + y[(k + 1) * subset_size:]
-        y_valid = y[k * subset_size:][:subset_size]
-
-        yield X_train, y_train, X_valid, y_valid
-
-def ten_fold_cross_validation(dataset, labels):
-    fold = 1
-    accuracies, pruned_accuracies= [],[]
-    for X_train, Y_train, X_test, Y_test in k_fold_generator(dataset, labels, 10):
-    	
-	t_size = int(0.7 * len(X_train)) #Within the training set, create a 70-30 split for model training, and model tuning (pruning)
-	X_model_train =  X_train[0:t_size]
-	Y_model_train = Y_train[0:t_size]
-	X_valid = X_train[t_size:]
-	Y_valid = Y_train[t_size:]
-
-	d_tree = create_decision_tree(X_train[0:t_size], Y_train[0:t_size])
-        print("Tree generated. Testing on original tree")
-        count = 0
-
-        accuracies.append(1 - get_classification_error(tree, X_model_train, Y_model_train, X_test, Y_test))
-    
-
-	
-
-    for fold, acc in enumerate(accuracies):
-	print("Accuracy  on fold ",  fold+1, ' = ', acc )
-
-    pruned_tree = prune(d_tree, X_model_train, Y_model_train, X_valid, Y_valid)
-
-
-def main():
-    preprocess.make_control_files()
-    ctrl_file = sys.argv[1] 
-    dataset, labels, meta = preprocess.pre_process(ctrl_file);
-    print("Preproc Complete")
-    load_metadata(meta)  #Sets the global metadata information
-    dataset, labels = shuffle_order(dataset, labels)
-    #classic_holdout(dataset, labels)
-    ten_fold_cross_validation(dataset, labels)
-   
-
-
-if __name__ == "__main__":
-	main()

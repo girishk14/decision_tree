@@ -3,45 +3,76 @@
 import sys
 import os
 import math
+import decision_tree
+import classification
+
+def collect_nodes(root, nodestack, leafstack):
+	
+	if root.isLeaf == True:
+		leafstack.append(root)
+	else:
+		nodestack.append(root)
+		for child in root.children:
+			collect_nodes(child, nodestack, leafstack)
 
 
-def get_classificaton_error(tree,  seen_dataset, seen_labels, unseen_labels)
-    pass
 
-def reduced_error_prune(d_tree, dataset, labels,  X_valid, Y_valid):
-    pass
+
+
+def reduced_error_pruning(d_tree, dataset, labels,  X_valid, Y_valid): 
+
+
 	#This module implements reduced error pruning and returns a tree with some of the subtree replaces by a majoirity classifer
 #Here, dataset and labels are the training set that this tree was trained on
 
-
-    #while True:
-     #   pre_error = get_classification_error(d_tree, dataset, labels, X_valid, Y_valid)
-
-
-
-def classify_tuple(dataset, labels, root , test_tuple): #Given the root of a decsion tree, and a new tuple, return its class
-    #print(tuple)
-    #print(root)
-    trav = root
-    while(trav.isLeaf is not True):
-		curr_attr = trav.criteria['next_split_attr'] 
-                if metadata['attr_types'][curr_attr] == 'c':
-		    if test_tuple[curr_attr] < trav.children[0].criteria['parent_split_point']:
-			trav = trav.children[0]
-		    else:
-		        trav = trav.children[1]
+	
+	while True:
+		print("Pruning Iteration")
+		pre_error = 1 -  classification.get_classification_error(d_tree, dataset, labels, X_valid, Y_valid)
+		nodestack = [] 
+		leafstack = []
+		collect_nodes(d_tree, nodestack, leafstack)
 
 		
-		else:
- 		    flag = 0
-		    for child in trav.children:
-			if child.criteria['parent_split_point'] == test_tuple[curr_attr]:
-			    trav = child
-                            flag = 1
+		prune_me = None
+		max_error_red = 0
+		
+		for node in nodestack:
+			node.leafify(dataset, labels)
+			post_error = 1- classification.get_classification_error(d_tree, dataset, labels, X_valid, Y_valid)			
+			error_reduction = pre_error - post_error
+			print("Pre-Error :", pre_error, "Post-Error", post_error,"Error Reduction", error_reduction)			
+			if error_reduction > max_error_red:	
+				max_error_red = error_reduction
+				prune_me = node
+			node.unleafify()
 
-                    if flag==0: #If there is no way to classify this tuple in the tree;wq
-			print("No confidence to classify this")
-	                guess =  get_class_majority(dataset, labels, trav.partition)
-			return guess
-    return trav.class_label
+		
+		for leaf in leafstack:
+			if len(leaf.children) > 0:
+				node.unleafify()
+				post_error = 1- classification.get_classification_error(d_tree, dataset, labels, X_valid, Y_valid)			
+				error_reduction = pre_error - post_error
+				print("Pre-Error :", pre_error, "Post-Error", post_error,"Error Reduction", error_reduction)			
+				if error_reduction > max_error_red:	
+					max_error_red = error_reduction
+					prune_me = node
+				node.leafify()
+
+				
+				
+
+
+		if max_error_red <= 0:
+			return d_tree				
+			
+		print("Error Reduction : ", max_error_
+		if prune_me.isLeaf:
+			prune_me.unleafify()
+		else:
+			prune_me.leafify(dataset, labels)
+
+			
+						
+						
 
