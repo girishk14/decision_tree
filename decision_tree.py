@@ -6,6 +6,8 @@ import math
 import json
 import random
 import preprocess
+import pruning
+import classification
 
 global metadata
 
@@ -14,11 +16,20 @@ class node:
         self.children = []
         self.criteria = {"next_split_attr": attr, "parent_split_point":split_point}
         self.partition = partition
-        self.class_distr = None
         self.class_label = None
+	self.isLeaf = False
 
     def set_class_label(self,l):
         self.class_label = l
+	self.isLeaf = True
+
+    def leafify(self):
+	pass#Makes itself a leaf based on majority class
+
+
+    def unleafify(self):
+	pass
+
 
     def print_node(self):
         print(self.criteria)
@@ -187,36 +198,6 @@ def compute_entropy(dataset, labels, subpart):
 
 
 
-def prune_tree():
-	pass#Fill in this code later, simply because error measurement isn't clear!
-
-
-def classify_tuple(dataset, labels, root , test_tuple): #Given the root of a decsion tree, and a new tuple, return its class
-    #print(tuple)
-    #print(root)
-    trav = root
-    while(len(trav.children)>0):
-		curr_attr = trav.criteria['next_split_attr'] 
-                if metadata['attr_types'][curr_attr] == 'c':
-		    if test_tuple[curr_attr] < trav.children[0].criteria['parent_split_point']:
-			trav = trav.children[0]
-		    else:
-		        trav = trav.children[1]
-
-		
-		else:
- 		    flag = 0
-		    for child in trav.children:
-			if child.criteria['parent_split_point'] == test_tuple[curr_attr]:
-			    trav = child
-                            flag = 1
-
-                    if flag==0: #If there is no way to classify this tuple in the tree;wq
-			print("No confidence to classify this")
-	                guess =  get_class_majority(dataset, labels, trav.partition)
-			return guess
-    return trav.class_label
-
 
 def shuffle_order(a, b):	
 	c = list(zip(a, b))
@@ -258,22 +239,28 @@ def k_fold_generator(X, y, k_fold):
 
 def ten_fold_cross_validation(dataset, labels):
     fold = 1
-    accuracies = []
-    for X_train, Y_train, X_valid, Y_valid in k_fold_generator(dataset, labels, 10):
-	d_tree = create_decision_tree(X_train, Y_train)
-        print("Tree generated")
-        count = 0
-        for i in range(0, len(X_valid)):
-	    if classify_tuple(d_tree, X_valid[i]) == Y_valid[i]:
-	        count+=1
+    accuracies, pruned_accuracies= [],[]
+    for X_train, Y_train, X_test, Y_test in k_fold_generator(dataset, labels, 10):
+    	
+	t_size = int(0.7 * len(X_train)) #Within the training set, create a 70-30 split for model training, and model tuning (pruning)
+	X_model_train =  X_train[0:t_size]
+	Y_model_train = Y_train[0:t_size]
+	X_valid = X_train[t_size:]
+	Y_valid = Y_train[t_size:]
 
-        accuracies.append(count/float(len(X_valid)))
+	d_tree = create_decision_tree(X_train[0:t_size], Y_train[0:t_size])
+        print("Tree generated. Testing on original tree")
+        count = 0
+
+        accuracies.append(1 - get_classification_error(tree, X_model_train, Y_model_train, X_test, Y_test))
     
-        	
+
+	
+
     for fold, acc in enumerate(accuracies):
 	print("Accuracy  on fold ",  fold+1, ' = ', acc )
 
-	
+    pruned_tree = prune(d_tree, X_model_train, Y_model_train, X_valid, Y_valid)
 
 
 def main():
@@ -283,8 +270,8 @@ def main():
     print("Preproc Complete")
     load_metadata(meta)  #Sets the global metadata information
     dataset, labels = shuffle_order(dataset, labels)
-    classic_holdout(dataset, labels)
-    #ten_fold_cross_validation(dataset, labels)
+    #classic_holdout(dataset, labels)
+    ten_fold_cross_validation(dataset, labels)
    
 
 
