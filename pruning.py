@@ -57,7 +57,7 @@ def reduced_error_pruning(d_tree, dataset, labels,  X_valid, Y_valid):
 				if error_reduction > max_error_red:	
 					max_error_red = error_reduction
 					prune_me = node
-				node.leafify()
+				node.leafify(dataset,labels)
 
 				
 				
@@ -66,7 +66,7 @@ def reduced_error_pruning(d_tree, dataset, labels,  X_valid, Y_valid):
 		if max_error_red <= 0:
 			return d_tree				
 			
-		print("Error Reduction : ", max_error_
+		print("Error Reduction : ", max_error_red)
 		if prune_me.isLeaf:
 			prune_me.unleafify()
 		else:
