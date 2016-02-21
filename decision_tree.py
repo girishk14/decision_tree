@@ -47,7 +47,7 @@ class node:
 
 def create_decision_tree(dataset, labels):
      #Root Node has no split point or attribute
-    print(metadata)
+    #print(metadata)
     attr_count = len(metadata['attr_types'])
     attr_list = set(range(0, attr_count))
     return generate_subtree(dataset, labels, range(0, len(dataset)),  attr_list )
@@ -92,7 +92,7 @@ def generate_subtree(dataset, labels, partition, attr_list, parent_split_pt=None
 	print("Splitting on ", metadata['attr_names'][best_attr], cont_split_pt, "at depth  : ", depth)
         print("Attr List at this time : ", attr_list)
 	print("Length of this parititon", len(partition))
-	print("Elements in this partition", partition)
+	#print("Elements in this partition", partition)
         print("Previous split attr", parent_split_pt)
         
         root = node(best_attr, parent_split_pt, partition)
@@ -173,7 +173,6 @@ def find_entropy_discrete(dataset, labels, partition, attribute):
     attr_domain =  set([dataset[instance][attribute] for instance in partition])
     for x in attr_domain: #For each possible attribute value
         subpart = [instance for instance in partition if dataset[instance][attribute]==x]
-        print(len(subpart), end = " ")
         #Add the weighted entropy of every subpartiton
         E  = E +  (len(subpart)/float(len(partition))) * compute_entropy(dataset, labels, subpart)
 

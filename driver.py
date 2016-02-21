@@ -15,6 +15,7 @@ global metadata
 
 
 def classic_holdout(dataset, labels):
+    decision_tree.set_metadata(metadata)
     no_train = int(0.70* len(dataset))
     training_X =  dataset[0:no_train]
     training_Y = labels[0:no_train]
@@ -23,16 +24,9 @@ def classic_holdout(dataset, labels):
      
     print(len(training_X), len(test_X))
     d_tree  = decision_tree.create_decision_tree(training_X, training_Y)
-    print("Tree generated")
-    count = 0
-    labelled = 0
-    for i in range(0, len(test_X)):
-        pred = classify_tuple(training_X, training_Y, d_tree, test_X[i])
-	if pred == test_Y[i]: #or pred=="Unknown Class":
-		count+=1
-	labelled+=1
     
-    print("Accuracy  on test set = ",  count/float(labelled))
+	
+    print("Accuracy  on test set = ",  classification.get_classification_error(d_tree, training_X, training_Y, test_X, test_Y))
 
 def k_fold_generator(X, y, k_fold):
     subset_size = len(X) / k_fold  # Cast to int if using Python 3
@@ -51,7 +45,7 @@ def ten_fold_cross_validation(dataset, labels):
     accuracies, pruned_accuracies= [],[]
     for X_train, Y_train, X_test, Y_test in k_fold_generator(dataset, labels, 10):
     	
-	t_size = int(0.7 * len(X_train)) #Within the training set, create a 70-30 split for model training, and model tuning (pruning)
+	t_size = int((2/3.0) * len(X_train)) #Within the training set, create a 70-30 split for model training, and model tuning (pruning)
 	X_model_train =  X_train[0:t_size]
 	Y_model_train = Y_train[0:t_size]
 	X_valid = X_train[t_size:]
@@ -82,8 +76,8 @@ def main():
     metadata = md
     classification.set_metadata(md)
     dataset, labels = shuffle_order(dataset, labels)
-
-    ten_fold_cross_validation(dataset, labels)
+    classic_holdout(dataset, labels)
+  #  ten_fold_cross_validation(dataset, labels)
    
 
 

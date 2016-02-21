@@ -42,13 +42,13 @@ def pre_process(control_file):
 	#To compute means, and replace missing data with thse values		
 	metadata['attr_mean'] = []
 	for i, atype in enumerate(metadata['attr_types']):
-		print(i, atype)
+		#print(i, atype)
 		if atype=='c':
 			metadata['attr_mean'].append(mean([instance[i] for instance in dataset]))
   
 		else:
 			metadata['attr_mean'].append(most_common([instance[i] for instance in dataset]))
-	print(metadata['attr_mean'])
+	#print(metadata['attr_mean'])
 	for example in dataset:
 		for attr in range(0, len(metadata['attr_types'])):
 		 	if example[attr].strip() == '?':
@@ -61,22 +61,6 @@ def pre_process(control_file):
 		
 
 
-def make_control_file_HAPT():
-	cf = open('data/HAPT/control.json' , 'w')	
-	metadata = {}
-	metadata['location'] = ['data/HAPT/Train/train.txt' , 'data/HAPT/Test/test.txt']
-	metadata['attr_names'] = []
-	metadata['attr_types'] = []	
-	with open('data/HAPT/features.txt', 'r') as ffile:
-		for line in ffile:
-			metadata['attr_names'].append(line.strip())
-			metadata['attr_types'].append('c')
-	metadata['class_position'] = len(metadata['attr_names'])
-	metadata['class_name'] = "Action/Movement Made" 
-	metadata['sep'] = ' '
-	cf.write(json.dumps(metadata, indent=1))
-	metadata['c_split_limit'] = 5
-	
 
 def make_control_file_Mushroom():
 	cf = open('data/Mushroom/control.json' , 'w')	
@@ -103,6 +87,20 @@ def make_control_file_Chess():
 	metadata['attr_types'] = ['d'] * 6
 	metadata['class_position'] = 6
 	cf.write(json.dumps(metadata, indent=1))
+
+
+
+def make_control_file_Poker():
+	cf = open('data/Poker/control.json' , 'w')	
+	metadata = {}
+	metadata['location'] = ['data/Poker/pokertrain.data']
+	metadata['attr_names'] = ['S1', 'C1', 'S2', 'C2', 'S3', 'C3', 'S4', 'C4', 'S5', 'C5']
+	metadata['class_name'] = 'Poker Hand'
+	metadata['attr_types'] = ['d', 'c'] * 5
+	metadata['class_position'] = 10
+	cf.write(json.dumps(metadata, indent=1))
+
+
 
 
 def make_control_file_Iris():
@@ -202,10 +200,8 @@ def make_control_files():
 	make_control_file_BreastCancer()
 	make_control_file_Chess()
 	make_control_file_Iris()
+	make_control_file_Poker()
 
-
-#make_control_files()
-#pre_process('data/Adult/control.json')
 
 
 

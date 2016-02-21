@@ -14,8 +14,8 @@ global metadata
 def set_metadata(md):
 	global metadata
 	metadata = md
-        print(md)
-	print(metadata)
+        #print(md)
+	#print(metadata)
 
 def get_classification_error(tree,  seen_dataset, seen_labels, unseen_dataset, unseen_labels):
 	count = 0
