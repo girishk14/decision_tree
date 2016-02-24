@@ -21,11 +21,9 @@ def classic_holdout(dataset, labels):
     training_Y = labels[0:no_train]
     test_X = dataset[no_train:]
     test_Y = labels[no_train:]
-     
-    print(len(training_X), len(test_X))
+    print("Training Set Size : ", len(training_X))
     d_tree  = decision_tree.create_decision_tree(training_X, training_Y)
-    
-	
+    print("Test Set Size : ", len(test_X))	
     print("Accuracy  on test set = ",  classification.get_classification_error(d_tree, training_X, training_Y, test_X, test_Y))
 
 def k_fold_generator(X, y, k_fold):
@@ -40,7 +38,6 @@ def k_fold_generator(X, y, k_fold):
 
 def ten_fold_cross_validation(dataset, labels):
     decision_tree.set_metadata(metadata)
-    print(metadata)
     fold = 1
     accuracies, pruned_accuracies= [],[]
     for X_train, Y_train, X_test, Y_test in k_fold_generator(dataset, labels, 10):
@@ -52,19 +49,24 @@ def ten_fold_cross_validation(dataset, labels):
 	Y_valid = Y_train[t_size:]
 
 	d_tree = decision_tree.create_decision_tree(X_train[0:t_size], Y_train[0:t_size])
-        print("Tree generated. Testing on original tree")
+	
+	#decision_tree.visualize_tree(d_tree, "./TreeViz/Unpruned" + str(fold) + '.png');
+	print("Fold : " + str(fold))
+        print("Tree generated. Testing on original tree  . . .")
         count = 0    
 	
         accuracies.append(classification.get_classification_error(d_tree, X_model_train, Y_model_train, X_test, Y_test))
-	
+	print("Now pruning . . .");
 	pruned_tree = pruning.reduced_error_pruning(d_tree, X_model_train, Y_model_train, X_valid, Y_valid)	
-	print("Now testing on pruned treee")
+	#decision_tree.visualize_tree(d_tree, "./TreeViz/Pruned" + str(fold) + '.png');	
+	print("Pruned. Now testing on pruned treee. . .")
 	pruned_accuracies.append(classification.get_classification_error(pruned_tree, X_model_train, Y_model_train, X_test, Y_test))
+	fold+=1
+
+	
 
     for fold, (acc, pacc) in (enumerate(zip(accuracies,pruned_accuracies))):
 	print("Accuracy  on fold ",  fold+1, ' = ', acc, pacc )
-
-
 
 
 def main():
@@ -76,9 +78,10 @@ def main():
     metadata = md
     classification.set_metadata(md)
     dataset, labels = shuffle_order(dataset, labels)
+    dataset, labels = shuffle_order(dataset, labels)
     classic_holdout(dataset, labels)
-  #  ten_fold_cross_validation(dataset, labels)
-   
+    #ten_fold_cross_validation(dataset, labels)
+    
 
 
 if __name__ == "__main__":

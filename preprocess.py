@@ -78,22 +78,45 @@ def make_control_file_Mushroom():
 	cf.write(json.dumps(metadata, indent=1))
 
 
+def make_control_file_BalancedScale():
+	cf = open('data/BalancedScale/control.json' , 'w')	
+	metadata = {}
+	metadata['location'] = ['data/BalancedScale/balance-scale.data']
+	metadata['attr_names'] = ["Left Weight", "Left Distance", "Right Weight", "Right Distance"]
+	metadata['attr_types']  = ['d'] * 4
+	metadata['class_name']="Class Name"
+
+	metadata['class_position'] = 0
+	cf.write(json.dumps(metadata, indent=1))
+
+
+
 def make_control_file_Chess():
 	cf = open('data/Chess/control.json' , 'w')	
 	metadata = {}
 	metadata['location'] = ['data/Chess/krkopt.data']
 	metadata['attr_names'] = ['White King File', 'White King Rank', 'White Rook File', 'White Rook Rank', 'Black King File', 'Black King Rank']
 	metadata['class_name'] = 'Optimal Depth'
+	metadata['attr_types'] = ['d', 'c'] * 3
+	metadata['class_position'] = 6
+	cf.write(json.dumps(metadata, indent=1))
+
+
+def make_control_file_Car():
+	cf = open('data/Car/control.json' , 'w')	
+	metadata = {}
+	metadata['location'] = ['data/Car/car.data']
+	metadata['attr_names'] = ['buying', 'maint', 'doors', 'persons', 'lug_boot','safety']
+	metadata['class_name'] = 'Car Acceptability'
 	metadata['attr_types'] = ['d'] * 6
 	metadata['class_position'] = 6
 	cf.write(json.dumps(metadata, indent=1))
 
 
-
 def make_control_file_Poker():
 	cf = open('data/Poker/control.json' , 'w')	
 	metadata = {}
-	metadata['location'] = ['data/Poker/pokertrain.data']
+	metadata['location'] = ['data/Poker/pokertrain.data', 'data/Poker/pokertestsample.data']
 	metadata['attr_names'] = ['S1', 'C1', 'S2', 'C2', 'S3', 'C3', 'S4', 'C4', 'S5', 'C5']
 	metadata['class_name'] = 'Poker Hand'
 	metadata['attr_types'] = ['d', 'c'] * 5
@@ -201,6 +224,9 @@ def make_control_files():
 	make_control_file_Chess()
 	make_control_file_Iris()
 	make_control_file_Poker()
+	make_control_file_Car()
+	make_control_file_BalancedScale()
+
 
 
 

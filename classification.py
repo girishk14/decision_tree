@@ -22,8 +22,6 @@ def get_classification_error(tree,  seen_dataset, seen_labels, unseen_dataset, u
 	for i in range(0, len(unseen_dataset)):
         	if classify_tuple(tree, seen_dataset, seen_labels, unseen_dataset[i]) == unseen_labels[i]:
 	        	count+=1
-
-
 	return (count/float(len(unseen_dataset)))
 
 
@@ -31,20 +29,14 @@ def get_classification_error(tree,  seen_dataset, seen_labels, unseen_dataset, u
 
 
 def classify_tuple(root, dataset, labels, test_tuple): #Given the root of a decsion tree, and a new tuple, return its class
-    
-    #print(tuple)
-    #print(root)
     trav = root
     while(trav.isLeaf is not True):
-
 		curr_attr = trav.criteria['next_split_attr'] 
 		if metadata['attr_types'][curr_attr] == 'c':
 		    if test_tuple[curr_attr] < trav.children[0].criteria['parent_split_point']:
 			trav = trav.children[0]
 		    else:
 		        trav = trav.children[1]
-
-		
 		else:
  		    flag = 0
 		    for child in trav.children:
@@ -53,7 +45,7 @@ def classify_tuple(root, dataset, labels, test_tuple): #Given the root of a decs
                             flag = 1
 
                     if flag==0: #If there is no way to classify this tuple in the tree;wq
-			print("No confidence to classify this")
+			#print("No confidence to classify this", test_tuple)
 	                guess =  decision_tree.get_class_majority(dataset, labels, trav.partition)
 			return guess
     return trav.class_label

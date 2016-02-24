@@ -2,7 +2,8 @@
  "class_name": "Poker Hand", 
  "class_position": 10, 
  "location": [
-  "data/Poker/pokertrain.data"
+  "data/Poker/pokertrain.data", 
+  "data/Poker/pokertestsample.data"
  ], 
  "attr_names": [
   "S1", 

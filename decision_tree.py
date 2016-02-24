@@ -5,6 +5,7 @@ from copy import deepcopy
 import math
 import json
 import random
+import pydot	
 
 global metadata
 def set_metadata(md):
@@ -121,9 +122,6 @@ def get_class_majority(dataset, labels, partition):
 
 def get_splitting_criteria(dataset, labels, partition, attr_list):
     S = compute_entropy(dataset, labels, partition);
-    print("\n")
-    print(attr_list)
-    print("Overall Entropy = ", S)
     best_attr = -1
     best_gain = -sys.maxint
     best_split_pt = None
@@ -199,6 +197,48 @@ def compute_entropy(dataset, labels, subpart):
 
 
 
+def visualize_tree(root, filename):
+	#exec("import pydot")
+	graph = pydot.Dot(graph_type='digraph')
+
+
+	par = pydot.Node(str(root), label  = metadata['attr_names'][root.criteria['next_split_attr']])
+	graph.add_node(par)
+	visualize_subtree(root, par, graph)
+
+	graph.write_png(filename)
+
+'''
+	node_a = pydot.Node("Node A")
+	node_b = pydot.Node("Node B")
+	node_a = pydot.Node("Node A", style="filled", fillcolor="red")
+	graph.add_edge(pydot.Edge(node_d, nod_a, label="and back we go again", labelfontcolor="#009933", fontsize="10.0", color="blue"))
+	graph.write_png('example2_graph.png')
+'''
+
+
+def visualize_subtree(root, vizpar, graph): 
+	
+	if root.isLeaf:
+		return None
+
+	for idx, child in enumerate(root.children):
+		if not child.isLeaf:
+			vizchild = pydot.Node(str(child), label = metadata['attr_names'][child.criteria['next_split_attr']])
+
+		else:
+			vizchild = pydot.Node(str(child), label = child.class_label,style="filled", fillcolor="green")
+		graph.add_node(vizchild)
+	 
+		if metadata['attr_types'][root.criteria['next_split_attr']]=='d':
+			lb = str(child.criteria['parent_split_point']);
+			
+		else:
+			lb = (" < " + str(child.criteria['parent_split_point'])) if idx==0 else (" > " + str(child.criteria['parent_split_point'])) 
+			
+		graph.add_edge(pydot.Edge(vizpar, vizchild,  label = lb, color="blue"))
+		visualize_subtree(child, vizchild, graph)
+						
 
 
    # pruned_tree = prune(d_tree, X_model_train, Y_model_train, X_valid, Y_valid)

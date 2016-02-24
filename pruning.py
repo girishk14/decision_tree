@@ -33,12 +33,13 @@ def reduced_error_pruning(d_tree, dataset, labels,  X_valid, Y_valid):
 		nodestack = [] 
 		leafstack = []
 		collect_nodes(d_tree, nodestack, leafstack)
-
+		#print("No. of nodes in this iteration : ",len(nodestack))
 		
 		prune_me = None
 		max_error_red = 0
 		
-		for node in nodestack:
+		for idx,node in enumerate(nodestack):
+			#print(idx)
 			node.leafify(dataset, labels)
 			post_error = 1- classification.get_classification_error(d_tree, dataset, labels, X_valid, Y_valid)			
 			error_reduction = pre_error - post_error
@@ -47,17 +48,7 @@ def reduced_error_pruning(d_tree, dataset, labels,  X_valid, Y_valid):
 				max_error_red = error_reduction
 				prune_me = node
 			node.unleafify()
-		for leaf in leafstack:
-			continue
-			if len(leaf.children) > 0:
-				node.unleafify()
-				post_error = 1- classification.get_classification_error(d_tree, dataset, labels, X_valid, Y_valid)			
-				error_reduction = pre_error - post_error
-				#print("Pre-Error :", pre_error, "Post-Error", post_error,"Error Reduction", error_reduction)			
-				if error_reduction > max_error_red:	
-					max_error_red = error_reduction
-					prune_me = node
-				node.leafify(dataset,labels)
+
 
 		if max_error_red <= 0:
 			final_error = 1 -  classification.get_classification_error(d_tree, dataset, labels, X_valid, Y_valid)
@@ -65,10 +56,7 @@ def reduced_error_pruning(d_tree, dataset, labels,  X_valid, Y_valid):
 			return d_tree				
 			
 		#print("Error Reduction : ", max_error_red)
-		if prune_me.isLeaf:
-			prune_me.unleafify()
-		else:
-			prune_me.leafify(dataset, labels)
+		prune_me.leafify(dataset, labels)
 
 			
 						
