@@ -17,7 +17,15 @@ Python 2.7 comes preinstalled on most Linux distributions.
 Files and Directories Included
 ------------------------------
 1. data : Contains all the datasets and their control files
-2. Tree_Visualization : Contains images of the trees for Iris, Car, Mushroom, Pima Indians, Phising and Breast Cancer datasets as generated for the results obtained
+2. Tree_Images : Contains images of the already generated trees for Iris, Car, Mushroom, Pima Indians, Phising and Breast Cancer datasets. These are the same trees as those referred to in the Results document.
+
+PS: Due to CSNET space restrictions, only one pair of trees are shown for some of the datasets.
+
+For the complete set of images for all the datasets, refer to:
+https://github.com/girishk14/decision_tree.git
+
+
+
 3. TreeViz : Contains images for the trees generated in the current run
 4. classification.py, pruning.py, driver.py, decision_tree.py and preprocess.py  : Core Python modules for decision tree
 5. Decision_Tree_Report.pdf : Design documentation
@@ -29,7 +37,10 @@ Control Files
 
 The control files for the 6 specified datasets have already been generated. You may need to make a new control file for testing on new datasets. JSON format is used so that we can define additional parsing parameters in future. 
 
-This is the sample control file for the Iris Dataset:
+
+This is the sample control file for the Iris Dataset: 
+
+NOTE: ALL THE FOLLOWING ARE MANDATORY METADATA INFORMATION REQUIRED
 
 {
  "attr_types": [   //The sequence of attributes is assumed to be same as that in the raw input
@@ -75,7 +86,9 @@ Switches
 1. 10 fold cross validation:  To enable 10-fold cross validation, add the switch --kfold 
 eg.  python driver.py data/Iris/control.json --kfold
 
-2. Visualization : For building an image of the generated trees, use the switch --viz. However, for doing this, the pydot library must be installed. If not, the program throws an error. 
+2. Visualization : For building an image of the generated trees, use the switch --viz. It writes to the folder ./TreeViz/
+
+However, for doing this, the pydot library must be installed. If not, the program throws an error. 
 To install pydot library, use the following command:
 sudo apt-get install python-pydot
 
