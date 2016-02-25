@@ -19,12 +19,7 @@ Files and Directories Included
 1. data : Contains all the datasets and their control files
 2. Tree_Images : Contains images of the already generated trees for Iris, Car, Mushroom, Pima Indians, Phising and Breast Cancer datasets. These are the same trees as those referred to in the Results document.
 
-PS: Due to CSNET space restrictions, only one pair of trees are shown for some of the datasets.
-
-For the complete set of images for all the datasets, refer to:
-https://github.com/girishk14/decision_tree.git
-
-
+PS: Due to CSNET space restrictions, only one pair of trees are shown for some of the datasets. Running the kfold validation with the visualization switch as desribed ahead, will generate all 20 trees.
 
 3. TreeViz : Contains images for the trees generated in the current run
 4. classification.py, pruning.py, driver.py, decision_tree.py and preprocess.py  : Core Python modules for decision tree
