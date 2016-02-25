@@ -83,7 +83,8 @@ eg. python driver.py data/BreastCancer/control.json --kfold --viz
 eg. python driver.py data/Mushroom/control.json ---viz
 
 
-For classic holdout, it writes only a single tree named 'OriginalTree.png'.  For 10 fold validation, it prints a total of 20 trees, i.e unpruned and pruned tree for each fold.
+
+For classic holdout, it writes only a single tree.  For 10 fold validation, it prints a total of 20 trees.
 
 
 Output

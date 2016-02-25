@@ -33,6 +33,8 @@ def classic_holdout(dataset, labels, viz):
     print("Training Set Size : ", len(training_X))
     d_tree  = decision_tree.create_decision_tree(training_X, training_Y)
     decision_tree.print_ASCII_tree(d_tree, training_Y)
+    if viz==True:	
+        decision_tree.visualize_tree(d_tree, "./TreeViz/OriginalTree" + '.png');
     print("Test Set Size : ", len(test_X))	
     print("Accuracy  on test set = ",  classification.get_classification_accuracy(d_tree, training_X, training_Y, test_X, test_Y))
 
