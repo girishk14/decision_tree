@@ -4,6 +4,7 @@ import classification
 import decision_tree
 import pruning
 import random
+import decimal
 
 def shuffle_order(a, b):	
 	c = list(zip(a, b))
@@ -83,9 +84,12 @@ def ten_fold_cross_validation(dataset, labels, viz):
 	fold+=1
     print("\n\nResults : (Majority Classifier Accuracy, Unpruned Accuracy, Pruned Accuracy)\n\n")
     for fold, (macc, acc, pacc) in (enumerate(zip(maj_accuracies, accuracies,pruned_accuracies))):
-	acc_string = str(acc) + "(" + str(orig_counts[fold]) + " nodes)"
-	pacc_string = str(pacc) + "(" + str(pruned_counts[fold]) + " nodes)"
-	print("Accuracy  on fold ",  fold+1, ' = ',macc, acc_string, pacc_string )
+	acc  = '%.2f'%acc   #aacc = round(decimal.Decimal(acc), 3)
+	pacc = '%.2f'%pacc#pacc = round(decimal.Decimal(pacc), 3)
+	macc = '%.2f'%macc#macc = round(decimal.Decimal(macc), 3)
+	acc_string = str(acc) + "    " + str(orig_counts[fold]) + " nodes "
+	pacc_string = str(pacc) + "    " + str(pruned_counts[fold]) + " nodes "
+	print("Accuracy  on fold " +   str(fold+1), ' =   ' + str(macc) + "                  "  + acc_string +"               "+  pacc_string )
      
     print("\n\nConfidence Intervals :\n")
     print(classification.get_confidence_interval(maj_accuracies), classification.get_confidence_interval(accuracies), classification.get_confidence_interval(pruned_accuracies))
