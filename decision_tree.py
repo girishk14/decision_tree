@@ -5,36 +5,36 @@ from copy import deepcopy
 import math
 import json
 import random
-import pydot	
+
+try:
+    import pydot
+except ImportError:
+    pass
 
 global metadata
 def set_metadata(md):
 	global metadata
 	metadata   = md
-	print(metadata)
-
-
 
 class node:
-    def __init__(self, attr, split_point, partition):
+    def __init__(self, attr, split_point, partition, dataset, labels):
         self.children = []
         self.criteria = {"next_split_attr": attr, "parent_split_point":split_point}
         self.partition = partition
         self.class_label = None
+	self.majority_label = get_class_majority(dataset , labels, partition)
 	self.isLeaf = False
 
-    def set_class_label(self,l):
-        self.class_label = l
+    def set_class_label(self):
+        self.class_label = self.majority_label
 	self.isLeaf = True
 
     def leafify(self, dataset, labels):
-	l =  get_class_majority(dataset , labels, self.partition)
-	self.set_class_label(l)
+	self.set_class_label()
 	
     def unleafify(self):
 	self.isLeaf = False
 	self.class_label = None
-
 
 
     def print_node(self):
@@ -46,9 +46,43 @@ class node:
 	print("\n")
 
 
+
+def find_distribution(partition, labels):
+    count = {}
+         
+    for i in partition:
+        if labels[i] not in count.keys():
+            count[labels[i]] = 1
+        else:
+            count[labels[i]]+=1
+    dist_str = ''
+    for class_label in count.keys():
+	dist_str = dist_str + class_label + " : " + str(count[class_label]) + ", "
+
+
+    return dist_str
+	
+
+
+def print_ASCII_tree(root, labels, depth = 0):
+	if root.isLeaf: return
+	for idx, child in enumerate(root.children):
+		if metadata['attr_types'][root.criteria['next_split_attr']]=='d':
+			lb = metadata['attr_names'][root.criteria['next_split_attr']] + ' = ' + str(child.criteria['parent_split_point']);
+				
+		else:
+			lb = (metadata['attr_names'][root.criteria['next_split_attr']] + " < " + str(child.criteria['parent_split_point'])) if idx==0 else (metadata['attr_names'][root.criteria['next_split_attr']] + " > " + str(child.criteria['parent_split_point'])) 	
+		class_distribution = find_distribution(child.partition, labels)
+        	for i in range(0,depth): 
+			print("   ", end="")
+		print(lb + "---> " + class_distribution)
+		print_ASCII_tree(child, labels, depth+1)
+			
+		
+	
+
 def create_decision_tree(dataset, labels):
      #Root Node has no split point or attribute
-    #print(metadata)
     attr_count = len(metadata['attr_types'])
     attr_list = set(range(0, attr_count))
     return generate_subtree(dataset, labels, range(0, len(dataset)),  attr_list )
@@ -59,48 +93,38 @@ def prune_attributes(dataset, labels, partition, attr_list):
        attr_domain = set([dataset[instance][attr] for instance in partition])
        if len(attr_domain)>1:
            pruned_attr_list.append(attr)
-    #print(attr_list, " pruned to ", pruned_attr_list)
     return pruned_attr_list
 		
 
 def generate_subtree(dataset, labels, partition, attr_list, parent_split_pt=None,depth = 0):
     #Stop building the subtree of there are no attributes left or if all the members are in the same class
     if len(set([labels[instance] for instance in partition]))==1: #There is only class of examples left
-        root =  node(None, parent_split_pt, partition)
-        root.set_class_label(labels[partition[0]])
-        print("\nOnly one class left at ", depth, parent_split_pt, root.class_label)
+        root =  node(None, parent_split_pt, partition, dataset, labels)
+        root.set_class_label()
         return root
 
     elif len(attr_list)==0: #There are no attributes left
-        root = node(None, parent_split_pt, partition)
-        maj_label = get_class_majority(dataset, labels, partition)
-        root.set_class_label(maj_label)
-        print("No attributes left ", depth, parent_split_pt, root.class_label)
+        root = node(None, parent_split_pt, partition, dataset, labels)
+        root.set_class_label()
         return root
  
     else: 
         pruned_attr_list = prune_attributes(dataset, labels, partition, attr_list) #Prune away attributes that have only a single value left in their domain
+
         if len(pruned_attr_list) == 0:
-            root = node(None, parent_split_pt, partition)
-            maj_label = get_class_majority(dataset, labels, partition)
-            root.set_class_label(maj_label)  
+            root = node(None, parent_split_pt, partition, dataset, labels)
+            root.set_class_label()  
             return root
 
         attr_list = pruned_attr_list
         best_attr, cont_split_pt = get_splitting_criteria(dataset,  labels, partition, attr_list)
 	
-        #Here we distinguish between discrete and continuous
-	print("Splitting on ", metadata['attr_names'][best_attr], cont_split_pt, "at depth  : ", depth)
-        print("Attr List at this time : ", attr_list)
-	print("Length of this parititon", len(partition))
-	#print("Elements in this partition", partition)
-        print("Previous split attr", parent_split_pt)
-        
-        root = node(best_attr, parent_split_pt, partition)
+        #Here we distinguish between discrete and conti
+        root = node(best_attr, parent_split_pt, partition, dataset, labels)
+
         if(cont_split_pt==None): #A discrete attribute has been chosen to split!
             attr_domain = set([dataset[instance][best_attr] for instance in partition])	
-            print("Removing ", best_attr, "from " , attr_list)    
- 	    attr_list.remove(best_attr)		
+            attr_list.remove(best_attr)		
     	  
             for x in attr_domain: #Create the new children by partitioning this attribute
                 subpart = [instance for instance in partition if dataset[instance][best_attr]==x]
@@ -127,13 +151,11 @@ def get_splitting_criteria(dataset, labels, partition, attr_list):
     best_split_pt = None
     for attribute in attr_list:
         split_pt = None
-
         if metadata['attr_types'][attribute] == 'd':
             S_A, split_pt = find_entropy_discrete(dataset, labels, partition, attribute)
         else:
             S_A, split_pt = find_entropy_continuous(dataset, labels, partition, attribute)
 
-	print(metadata['attr_names'][attribute],S - S_A, metadata['attr_types'][attribute])
         if (S - S_A) > best_gain:
             best_attr = attribute
             best_gain = (S - S_A)
@@ -208,14 +230,6 @@ def visualize_tree(root, filename):
 
 	graph.write_png(filename)
 
-'''
-	node_a = pydot.Node("Node A")
-	node_b = pydot.Node("Node B")
-	node_a = pydot.Node("Node A", style="filled", fillcolor="red")
-	graph.add_edge(pydot.Edge(node_d, nod_a, label="and back we go again", labelfontcolor="#009933", fontsize="10.0", color="blue"))
-	graph.write_png('example2_graph.png')
-'''
-
 
 def visualize_subtree(root, vizpar, graph): 
 	
@@ -239,8 +253,5 @@ def visualize_subtree(root, vizpar, graph):
 		graph.add_edge(pydot.Edge(vizpar, vizchild,  label = lb, color="blue"))
 		visualize_subtree(child, vizchild, graph)
 						
-
-
-   # pruned_tree = prune(d_tree, X_model_train, Y_model_train, X_valid, Y_valid)
 
 
