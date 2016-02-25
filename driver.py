@@ -86,8 +86,9 @@ def ten_fold_cross_validation(dataset, labels, viz):
 	acc_string = str(acc) + "(" + str(orig_counts[fold]) + " nodes)"
 	pacc_string = str(pacc) + "(" + str(pruned_counts[fold]) + " nodes)"
 	print("Accuracy  on fold ",  fold+1, ' = ',macc, acc_string, pacc_string )
-
-
+     
+    print("\n\nConfidence Intervals :\n")
+    print(classification.get_confidence_interval(maj_accuracies), classification.get_confidence_interval(accuracies), classification.get_confidence_interval(pruned_accuracies))
 def main():
     global metadata
     viz = False   

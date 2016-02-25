@@ -45,4 +45,10 @@ def classify_tuple(root, dataset, labels, test_tuple): #Given the root of a decs
     return trav.class_label
 
 
-
+def get_confidence_interval(accuracies, k=10):
+	errors = [1 - acc for acc in accuracies]
+	mean  = sum(errors)/float(len(errors))
+	
+	SE = math.sqrt((1/(float(k)*float(k-1)))  * sum([math.pow(errors[i] - mean,2) for i in range(0 ,len(errors))]))
+	CI = mean + 2.23 * SE
+	return CI
